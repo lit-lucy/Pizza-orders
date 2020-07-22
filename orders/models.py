@@ -48,4 +48,4 @@ class ExtraPrice(models.Model):
     price = models.FloatField()
 
     def __str__(self):
-        return f"{self.food} with {self.extra}, {self.price}$"
+        return f"{self.food} ({self.extra}), {self.price}$"
