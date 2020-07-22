@@ -2,38 +2,50 @@ from django.db import models
 
 # Create your models here.
 
-class Sizes(models.Model):
+class Size(models.Model):
     size = models.CharField(max_length=64)
 
     def __str__(self):
         return f"Size: {self.size}"
 
 
-class Types(models.Model):
+class FoodType(models.Model):
     type_name = models.CharField(max_length=64)
 
     def __str__(self):
         return f"{self.type_name}"
 
-class Extras(models.Model):
+class Extra(models.Model):
     extras_name = models.CharField(max_length=100)
 
-class FullTypes(models.Model):
-    type_id = models.ForeignKey(Types,
+    def __str__(self):
+        return f"{self.extras_name}"
+
+class Food(models.Model):
+    food_type = models.ForeignKey(FoodType,
         on_delete=models.CASCADE)
-    full_type_name = models.CharField(max_length=100)
+    food_name = models.CharField(max_length=100)
     number_of_extras = models.IntegerField()
 
-class BasePrices(models.Model):
-    fulltype_id = models.ForeignKey(FullTypes,
+    def __str__(self):
+        return f"{self.food_type}: {self.food_name}"
+
+class BasePrice(models.Model):
+    food = models.ForeignKey(Food,
         on_delete=models.CASCADE)
-    size_id = models.ForeignKey(Sizes,
+    size = models.ForeignKey(Size,
         on_delete=models.CASCADE)
     price = models.FloatField()
 
-class ExtraPrices(models.Model):
-    fulltype_id = models.ForeignKey(FullTypes,
+    def __str__(self):
+        return f"{self.food}, {self.size}, {self.price}$"
+
+class ExtraPrice(models.Model):
+    food = models.ForeignKey(Food,
         on_delete=models.CASCADE)
-    extras_id = models.ForeignKey(Extras,
+    extra = models.ForeignKey(Extra,
         on_delete=models.CASCADE)
-    extra_price = models.FloatField()
+    price = models.FloatField()
+
+    def __str__(self):
+        return f"{self.food} with {self.extra}, {self.price}$"
