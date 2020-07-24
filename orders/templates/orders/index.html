@@ -2,14 +2,14 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Orders</title>
+		<title>Menu</title>
 	</head>
 	<body>
-		<h1>Orders</h1>
+		<h1>Menu</h1>
 		<ul>
-			{% for size in sizes %}
+			{% for item in menu_items %}
 				<li>
-					{{ size }}
+					{{ item }}
 				</li>
 			{% endfor %}
 		</ul>
