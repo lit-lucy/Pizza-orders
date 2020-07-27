@@ -5,13 +5,15 @@
         <title>Menu</title>
     </head>
     <body>
-
+        <h1>Menu</h1>
         {% for food_type in food_types %}
             <h1>{{ food_type }}</h1>
             {% for dish in food_type.food_set.all %}
-                <p>{{ dish }}</p>
+                <h3>{{ dish }}</h3>
+                {% for price in dish.baseprice_set.all %}
+                    <p>{{ price }}</p>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-      
+        {% endfor %}      
     </body>
 </html>
