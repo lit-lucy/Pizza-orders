@@ -28,7 +28,7 @@ class Food(models.Model):
     number_of_extras = models.IntegerField()
 
     def __str__(self):
-        return f"{self.food_type}: {self.food_name}"
+        return f"{self.food_name}"
 
 class BasePrice(models.Model):
     food = models.ForeignKey(Food,

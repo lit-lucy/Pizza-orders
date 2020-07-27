@@ -1,17 +1,17 @@
 
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Menu</title>
-	</head>
-	<body>
-		<h1>Menu</h1>
-		<ul>
-			{% for item in menu_items %}
-				<li>
-					{{ item }}
-				</li>
-			{% endfor %}
-		</ul>
-	</body>
+    <head>
+        <title>Menu</title>
+    </head>
+    <body>
+
+        {% for food_type in food_types %}
+            <h1>{{ food_type }}</h1>
+            {% for dish in food_type.food_set.all %}
+                <p>{{ dish }}</p>
+            {% endfor %}
+        {% endfor %}
+      
+    </body>
 </html>
