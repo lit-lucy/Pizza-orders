@@ -4,6 +4,19 @@
         <title>Dish</title>
     </head>
     <body>
-        <h1>{{ food.food_name }}</h1>     
+        <h1>{{ food.food_name }}</h1>
+        <p>Number of possible extras: {{ food.number_of_extras }}</p>
+        
+
+
+
+
+        <h2>Choose toppings/extras</h2>   
+
+        {% for extra in food.extraprice_set.all %}
+            <li>{{ extra.extra }}, ${{ extra.price }}</li>
+        {% empty %}
+            <li>No extras</li>
+        {% endfor %}
     </body>
 </html>
