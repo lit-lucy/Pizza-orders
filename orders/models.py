@@ -38,7 +38,7 @@ class BasePrice(models.Model):
     price = models.FloatField()
 
     def __str__(self):
-        return f"{self.size}, {self.price}$"
+        return f"{self.food}, {self.size}, ${self.price}"
 
 class ExtraPrice(models.Model):
     food = models.ForeignKey(Food,

@@ -9,9 +9,9 @@
         {% for food_type in food_types %}
             <h1>{{ food_type }}</h1>
             {% for dish in food_type.food_set.all %}
-                <h3>{{ dish }}</h3>
+                <p><a href="{% url 'food_modifications' dish.id %}">{{ dish }}</a></p>
                 {% for price in dish.baseprice_set.all %}
-                    <p>{{ price }}</p>
+                    <p>{{price.size}}, ${{ price.price }}</p>
                 {% endfor %}
             {% endfor %}
         {% endfor %}      
