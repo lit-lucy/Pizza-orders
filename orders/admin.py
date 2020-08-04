@@ -5,7 +5,7 @@ from .models import *
 # Register your models here.
 admin.site.register(Size)
 admin.site.register(FoodType)
+admin.site.register(ExtraType)
+admin.site.register(Subtype)
+admin.site.register(Dish)
 admin.site.register(Extra)
-admin.site.register(Food)
-admin.site.register(BasePrice)
-admin.site.register(ExtraPrice)
