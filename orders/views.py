@@ -29,5 +29,22 @@ def food_modifications(request, food_id):
 
 def add_to_order(request, food_id):
     food = get_object_or_404(Food, pk=food_id)
+    # Add try and except 
+    base_price = food.baseprice_set.get(size=request.POST['size']).price
+    extra_price = 0
 
-    return HttpResponse('done')
+    extras = request.POST.getlist('extras')
+    for extra in extras:
+        if extra != '0':
+            extra_price += Extra.objects.get(pk=int(extra)).extraprice_set.get(food=food_id).price
+
+
+    context = {
+        "price": base_price + extra_price,
+        "food": food,
+        "extras": extras,
+        "base_price": food.baseprice_set.get(size=request.POST['size']),
+
+    } 
+
+    return render(request, "orders/check.html", context)
