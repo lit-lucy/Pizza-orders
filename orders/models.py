@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 # Create your models here.
@@ -49,3 +50,53 @@ class Extra(models.Model):
 
     def __str__(self):
         return f"{self.subtype} ({self.extra_type}), {self.price}$"
+
+class Status(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name}"
+
+class DeliveryType(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name}"
+
+class Order(models.Model):
+    status = models.ForeignKey(Status, 
+        on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT)
+    time_created = models.DateTimeField()
+    delivery_type = models.ForeignKey(DeliveryType,
+        on_delete=models.PROTECT)
+    is_paid = models.BooleanField()
+
+    def __str__(self):
+        return f"{self.id} from {self.user}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order,
+        on_delete=models.CASCADE)
+    dish = models.ForeignKey(Dish,
+        on_delete=models.PROTECT)
+    price = models.FloatField()
+
+    def __str__(self):
+        return f"{self.dish} from {self.order} order"
+
+class OrderItemExtra(models.Model):
+    order_item = models.ForeignKey(OrderItem,
+        on_delete=models.CASCADE)
+    extra = models.ForeignKey(Extra, 
+        on_delete=models.PROTECT)
+    price = models.FloatField()
+
+    def __str__(self):
+        return f"{self.extra} for {self.order_item}"
+
+
+
+
+

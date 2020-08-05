@@ -6,7 +6,9 @@
 <body>
 	<p>{{ price }}</p>
 	<p>{{ dish }}</p>
-	<p>{{ extras }}</p>
+	{% for extra in extras %}
+		<p>{{ extra }}</p>
+	{% endfor %}
 	<p>{{ dish_price }}</p>
 
 </body>
