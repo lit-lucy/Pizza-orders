@@ -72,6 +72,7 @@ class Order(models.Model):
     delivery_type = models.ForeignKey(DeliveryType,
         on_delete=models.PROTECT)
     is_paid = models.BooleanField()
+    session = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return f"{self.id} from {self.user}"
