@@ -49,7 +49,7 @@ class Extra(models.Model):
     price = models.FloatField()
 
     def __str__(self):
-        return f"{self.subtype} ({self.extra_type}), {self.price}$"
+        return f"{self.subtype} ({self.extra_type}), ${self.price}"
 
 class Status(models.Model):
     name = models.CharField(max_length=100)

@@ -85,3 +85,21 @@ def order_summary(request, order_id):
 
     }
     return render(request, "orders/check.html", context)
+
+def shopping_cart(request):
+    order = Order.objects.get(session=request.session.session_key)
+    # Calculating total for dishes
+    base_price = 0
+    extra_price = 0
+    for item in order.orderitem_set.all():
+        base_price += item.price
+        for extra in item.orderitemextra_set.all():
+            extra_price += extra.price
+
+    total_price = base_price + extra_price
+    
+    context = {
+    "order": order,
+    "total_price": total_price,
+    }
+    return render(request, "orders/shopping_cart.html", context)
