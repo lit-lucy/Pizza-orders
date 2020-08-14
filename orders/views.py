@@ -39,6 +39,7 @@ def add_to_order(request, subtype_id):
     delivery = DeliveryType.objects.get(pk=1)
 
     # Get(if order with such session exists) or create order
+    # Check not only session, but also status - 'in basket'
     order, created = Order.objects.get_or_create(session=request.session.session_key,
             defaults={'status': status,
             'user': user,
@@ -59,19 +60,28 @@ def add_to_order(request, subtype_id):
             order_extra.save()
             
 
-    context = {
+    # context = {
         
-        "dish": subtype,
-        "extras": extras,
-        "dish_price": subtype.dish_set.get(size=request.POST['size']),
+    #     "dish": subtype,
+    #     "extras": extras,
+    #     "dish_price": subtype.dish_set.get(size=request.POST['size']),
 
-    } 
+    # } 
+    print(order.id)
+    return redirect("order_summary", order_id=order.id)
 
-    return redirect("order_summary")
+def order_summary(request, order_id):
+    # Add last item of the current order
+    last_item_in_order = Order.objects.get(pk=order_id).orderitem_set.all().last()
+    # Calculating total price
+    price = last_item_in_order.price
 
-def order_summary(request):
+    for extra in last_item_in_order.orderitemextra_set.all():
+        price += extra.price
+
     context = {
-    "data": "added to orders",
+    "order_item": last_item_in_order,
+    "price": price,
 
     }
     return render(request, "orders/check.html", context)

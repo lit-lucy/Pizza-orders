@@ -4,13 +4,19 @@
 	<title>Check</title>
 </head>
 <body>
-	{{ data }}
-	<p>{{ price }}</p>
-	<p>{{ dish }}</p>
-	{% for extra in extras %}
-		<p>{{ extra }}</p>
-	{% endfor %}
-	<p>{{ dish_price }}</p>
+	<p>{{ order_item.dish }}</p>
+	{% if order_item.orderitemextra_set.all %}
+		<ul>
+			{% for extra in order_item.orderitemextra_set.all %}
+			<li>Topping: {{ extra.extra.extra_type }}, {{ extra.price }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<p>Total sum: {{ price }}</p>
+	<a href="/">Back to menu</a>
+	<p>choice of going back to menu or proceeding to shopping cart</p>
+
 
 </body>
 </html>
