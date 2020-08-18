@@ -6,7 +6,12 @@ from django.utils import timezone
 from .models import *
 from django.contrib.auth.models import User
 
-# Create your views here.
+def calculate_total_price(order_item):
+    price = order_item.price
+    for extra in order_item.orderitemextra_set.all():
+            price += extra.price
+    return price
+
 def index(request):
     context = {
         "food_types": FoodType.objects.all(),
@@ -14,10 +19,7 @@ def index(request):
     return render(request, "orders/index.html", context)
 
 def food_modifications(request, subtype_id):
-    try:
-        subtype = Subtype.objects.get(id=subtype_id)
-    except Subtype.DoesNotExist:
-        raise Http404("Dish does not exist")
+    subtype = get_object_or_404(Subtype, pk=subtype_id)
 
     context = {
         "subtype": subtype,
@@ -27,27 +29,20 @@ def food_modifications(request, subtype_id):
     return render(request, "orders/food.html", context)
 
 def add_to_order(request, subtype_id):
-    # Get dish and it's size
     subtype = get_object_or_404(Subtype, pk=subtype_id)
     dish = subtype.dish_set.get(size=request.POST['size'])
 
-    # Compile an order
-    # Test user for now, then add user_id 
-    user = User.objects.get(pk=2)
-    # Status 'in shopping cart'
-    status = Status.objects.get(pk=1)
-    delivery = DeliveryType.objects.get(pk=1)
-
     # Get(if order with such session exists) or create order
-    # Check not only session, but also status - 'in basket'
+    # Check not only session, but also status - 'in shopping cart'
     order, created = Order.objects.get_or_create(session=request.session.session_key,
-            defaults={'status': status,
-            'user': user,
+        defaults={
+            'status': Status.objects.get(pk=1), # Status 'in shopping cart'
+            'user': User.objects.get(pk=2), # Test user
             'time_created': timezone.now(),
-            'delivery_type': delivery,
+            'delivery_type': DeliveryType.objects.get(pk=1), # Type 'pick up'
             'is_paid': False
-
             })
+    
     # Add item to an order    
     order_item = OrderItem(order=order, dish=dish, price=dish.price)
     order_item.save()
@@ -60,24 +55,11 @@ def add_to_order(request, subtype_id):
             order_extra.save()
             
 
-    # context = {
-        
-    #     "dish": subtype,
-    #     "extras": extras,
-    #     "dish_price": subtype.dish_set.get(size=request.POST['size']),
+    return redirect("last_added_item", order_id=order.id)
 
-    # } 
-    print(order.id)
-    return redirect("order_summary", order_id=order.id)
-
-def order_summary(request, order_id):
-    # Add last item of the current order
+def last_added_item(request, order_id):
     last_item_in_order = Order.objects.get(pk=order_id).orderitem_set.all().last()
-    # Calculating total price
-    price = last_item_in_order.price
-
-    for extra in last_item_in_order.orderitemextra_set.all():
-        price += extra.price
+    price = calculate_total_price(last_item_in_order)
 
     context = {
     "order_item": last_item_in_order,
@@ -89,17 +71,13 @@ def order_summary(request, order_id):
 def shopping_cart(request):
     order = Order.objects.get(session=request.session.session_key)
     # Calculating total for dishes
-    base_price = 0
-    extra_price = 0
-    for item in order.orderitem_set.all():
-        base_price += item.price
-        for extra in item.orderitemextra_set.all():
-            extra_price += extra.price
+    price = 0
 
-    total_price = base_price + extra_price
+    for item in order.orderitem_set.all():
+        price += calculate_total_price(item)
     
     context = {
     "order": order,
-    "total_price": total_price,
+    "total_price": price,
     }
     return render(request, "orders/shopping_cart.html", context)
