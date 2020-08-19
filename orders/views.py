@@ -78,8 +78,10 @@ def shopping_cart(request):
     return render(request, "orders/shopping_cart.html", context)
 
 def delete_from_order(request, item_id):
-    order = Order.objects.get(session=request.session.session_key)
-    item = order.orderitem_set.get(pk=item_id)
-    item.delete()
+    order = get_object_or_404(Order, session=request.session.session_key)
+    # Check if order has status 'in shopping cart'
+    if order.status.name == 'in shopping cart':
+        item = order.orderitem_set.get(pk=item_id)
+        item.delete()
 
     return redirect("shopping_cart")
