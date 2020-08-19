@@ -7,7 +7,11 @@
 		<h1>Order No.{{ order.id }}</h1>
 		<h1>Order items with base price for each and extras with prices if they exist</h1>
 		{% for item in order.orderitem_set.all %}
-			<p>{{ item.dish }}</p>
+			<form action="{% url 'delete_from_order' item.id %}" method="post">
+				{% csrf_token %}
+				<label>{{ item.dish }}</label>
+				<input type="submit" value="remove from the order"/>
+			</form>
 			{% if item.orderitemextra_set.all %}
 				<ul>
 					{% for extra in item.orderitemextra_set.all %}

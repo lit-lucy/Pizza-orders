@@ -76,3 +76,10 @@ def shopping_cart(request):
     "total_price": price,
     }
     return render(request, "orders/shopping_cart.html", context)
+
+def delete_from_order(request, item_id):
+    order = Order.objects.get(session=request.session.session_key)
+    item = order.orderitem_set.get(pk=item_id)
+    item.delete()
+
+    return redirect("shopping_cart")
