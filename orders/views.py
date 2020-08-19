@@ -38,18 +38,33 @@ def add_to_order(request, subtype_id):
             'is_paid': False
             })
     
-    # Add item to an order    
-    order_item = OrderItem(order=order, dish=dish, price=dish.price)
-    order_item.save()
-
     extras = request.POST.getlist('extras')
-    for extra_id in extras:
-        if extra_id != '0':
-            extra = ExtraType.objects.get(pk=int(extra_id)).extra_set.get(subtype=subtype_id)
-            order_extra = OrderItemExtra(order_item=order_item, extra=extra, price=extra.price)
-            order_extra.save()
+    # Remover 0 from the list (0 = no extras)
+    extras = [x for x in extras if x != 0]
+    # Check whether exact item already in the order returns boolean
+    # If true, get this object 
+    if order.orderitem_set.all().filter(dish=dish).exists():
+        existing_object = order.orderitem_set.get(dish=dish)
+        # Get a list of extra_ids for this item 
+        list_of_extras = []
+        for extra in existing_object.orderitemextra_set.all():
+            list_of_extras.append(extra.extra.id)
+        # Compare with a list of extras for an item to be added
+        # if True, update quantity of existing_object by one, save
+        # else create new order item  
+        if sorted(list_of_extras) == sorted(extras):
+            existing_object.quantity += 1
+            existing_object.save()
+        else:  
+            order_item = OrderItem(order=order, dish=dish, price=dish.price, quantity=1)
+            order_item.save()
+            # Add extras to order item
+            if extras:
+                for extra_id in extras:
+                    extra = ExtraType.objects.get(pk=int(extra_id)).extra_set.get(subtype=subtype_id)
+                    order_extra = OrderItemExtra(order_item=order_item, extra=extra, price=extra.price)
+                    order_extra.save()
             
-
     return redirect("last_added_item", order_id=order.id)
 
 def last_added_item(request, order_id):

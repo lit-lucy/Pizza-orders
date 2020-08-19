@@ -83,6 +83,7 @@ class OrderItem(models.Model):
     dish = models.ForeignKey(Dish,
         on_delete=models.PROTECT)
     price = models.FloatField()
+    quantity = models.IntegerField()
 
     def __str__(self):
         return f"{self.dish} from {self.order} order"
@@ -92,6 +93,13 @@ class OrderItem(models.Model):
         for extra in self.orderitemextra_set.all():
                 price += extra.price
         return price
+
+    # def compare_order_iems(self, other, extras):
+    #     if self.dish == other.dish:
+    #         list_of_dish_extras = []
+    #         for extra in self.orderitemextra_set.all():
+    #             list_of_dish_extras.append(extra.extra.id)
+    #         # Compare to lists
 
 class OrderItemExtra(models.Model):
     order_item = models.ForeignKey(OrderItem,
