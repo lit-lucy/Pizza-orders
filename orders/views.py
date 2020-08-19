@@ -6,12 +6,6 @@ from django.utils import timezone
 from .models import *
 from django.contrib.auth.models import User
 
-def calculate_total_price(order_item):
-    price = order_item.price
-    for extra in order_item.orderitemextra_set.all():
-            price += extra.price
-    return price
-
 def index(request):
     context = {
         "food_types": FoodType.objects.all(),
@@ -36,6 +30,7 @@ def add_to_order(request, subtype_id):
     # Check not only session, but also status - 'in shopping cart'
     order, created = Order.objects.get_or_create(session=request.session.session_key,
         defaults={
+            'session': request.session.session_key,
             'status': Status.objects.get(pk=1), # Status 'in shopping cart'
             'user': User.objects.get(pk=2), # Test user
             'time_created': timezone.now(),
@@ -59,7 +54,7 @@ def add_to_order(request, subtype_id):
 
 def last_added_item(request, order_id):
     last_item_in_order = Order.objects.get(pk=order_id).orderitem_set.all().last()
-    price = calculate_total_price(last_item_in_order)
+    price = last_item_in_order.calculate_total_price()
 
     context = {
     "order_item": last_item_in_order,
@@ -74,7 +69,7 @@ def shopping_cart(request):
     price = 0
 
     for item in order.orderitem_set.all():
-        price += calculate_total_price(item)
+        price += item.calculate_total_price()
     
     context = {
     "order": order,

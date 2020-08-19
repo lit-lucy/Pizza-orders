@@ -87,6 +87,12 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.dish} from {self.order} order"
 
+    def calculate_total_price(self):
+        price = self.price
+        for extra in self.orderitemextra_set.all():
+                price += extra.price
+        return price
+
 class OrderItemExtra(models.Model):
     order_item = models.ForeignKey(OrderItem,
         on_delete=models.CASCADE)
