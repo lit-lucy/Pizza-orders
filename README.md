@@ -1,3 +1,3 @@
-# Project 3
+# Food ordering web application
 
-Web Programming with Python and JavaScript
+Django project
