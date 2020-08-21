@@ -55,15 +55,15 @@ def add_to_order(request, subtype_id):
         if sorted(list_of_extras) == sorted(extras):
             existing_object.quantity += 1
             existing_object.save()
-        else:  
-            order_item = OrderItem(order=order, dish=dish, price=dish.price, quantity=1)
-            order_item.save()
-            # Add extras to order item
-            if extras:
-                for extra_id in extras:
-                    extra = ExtraType.objects.get(pk=int(extra_id)).extra_set.get(subtype=subtype_id)
-                    order_extra = OrderItemExtra(order_item=order_item, extra=extra, price=extra.price)
-                    order_extra.save()
+    else:  
+        order_item = OrderItem(order=order, dish=dish, price=dish.price, quantity=1)
+        order_item.save()
+        # Add extras to order item
+        if extras:
+            for extra_id in extras:
+                extra = ExtraType.objects.get(pk=int(extra_id)).extra_set.get(subtype=subtype_id)
+                order_extra = OrderItemExtra(order_item=order_item, extra=extra, price=extra.price)
+                order_extra.save()
             
     return redirect("last_added_item", order_id=order.id)
 
@@ -94,9 +94,23 @@ def shopping_cart(request):
 
 def delete_from_order(request, item_id):
     order = get_object_or_404(Order, session=request.session.session_key)
+    item = order.orderitem_set.get(pk=item_id)
     # Check if order has status 'in shopping cart'
     if order.status.name == 'in shopping cart':
-        item = order.orderitem_set.get(pk=item_id)
-        item.delete()
+        if item.quantity > 1:
+            item.quantity -= 1
+            item.save()
+        else:
+            item.delete()
 
     return redirect("shopping_cart")
+
+def change_quantity(request, item_id):
+    order = get_object_or_404(Order, session=request.session.session_key)
+    item = order.orderitem_set.get(pk=item_id)
+    number = request.POST['quantity']
+    if order.status.name == 'in shopping cart':
+        item.quantity = int(number)
+        item.save()
+    return redirect("shopping_cart")
+
