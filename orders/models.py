@@ -72,10 +72,39 @@ class Order(models.Model):
     delivery_type = models.ForeignKey(DeliveryType,
         on_delete=models.PROTECT)
     is_paid = models.BooleanField()
-    session = models.CharField(max_length=100, unique=True)
+    session = models.CharField(max_length=100)
 
     def __str__(self):
         return f"{self.id} from {self.user}"
+    def add_item_or_change_quantity(self, extras, dish, subtype_id):
+        if self.orderitem_set.all().filter(dish=dish).exists():
+            existing_item = self.orderitem_set.get(dish=dish)
+            # Get a list of extra_ids for this item 
+            list_of_extras = []
+            for extra in existing_item.orderitemextra_set.all():
+                list_of_extras.append(extra.extra.id)
+            # Compare with a list of extras for an item to be added
+            # if True, update quantity of existing_item by one, save
+            # else create new order item  
+            if sorted(list_of_extras) == sorted(extras):
+                existing_item.quantity += 1
+                existing_item.save()
+                return 
+        order_item = OrderItem(order=self, dish=dish, price=dish.price, quantity=1)
+        order_item.save()
+        # Add extras to order item
+        if extras:
+            for extra_id in extras:
+                extra = ExtraType.objects.get(pk=int(extra_id)).extra_set.get(subtype=subtype_id)
+                order_extra = OrderItemExtra(order_item=order_item, extra=extra, price=extra.price)
+                order_extra.save()
+        return
+
+    def total_for_order(self):
+        price = 0
+        for item in self.orderitem_set.all():
+            price += item.calculate_total_price()
+        return price 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order,
@@ -93,13 +122,6 @@ class OrderItem(models.Model):
         for extra in self.orderitemextra_set.all():
                 price += extra.price
         return price
-
-    # def compare_order_iems(self, other, extras):
-    #     if self.dish == other.dish:
-    #         list_of_dish_extras = []
-    #         for extra in self.orderitemextra_set.all():
-    #             list_of_dish_extras.append(extra.extra.id)
-    #         # Compare to lists
 
 class OrderItemExtra(models.Model):
     order_item = models.ForeignKey(OrderItem,

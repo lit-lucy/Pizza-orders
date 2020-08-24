@@ -23,12 +23,10 @@ def food_modifications(request, subtype_id):
     return render(request, "orders/food.html", context)
 
 def add_to_order(request, subtype_id):
-    subtype = get_object_or_404(Subtype, pk=subtype_id)
-    dish = subtype.dish_set.get(size=request.POST['size'])
+    dish = get_object_or_404(Subtype, pk=subtype_id).dish_set.get(size=request.POST['size'])
 
-    # Get(if order with such session exists) or create order
-    # Check not only session, but also status - 'in shopping cart'
     order, created = Order.objects.get_or_create(session=request.session.session_key,
+        status=1,  # Status 'in shopping cart'
         defaults={
             'session': request.session.session_key,
             'status': Status.objects.get(pk=1), # Status 'in shopping cart'
@@ -40,30 +38,9 @@ def add_to_order(request, subtype_id):
     
     extras = request.POST.getlist('extras')
     # Remover 0 from the list (0 = no extras)
-    extras = [x for x in extras if x != 0]
-    # Check whether exact item already in the order returns boolean
-    # If true, get this object 
-    if order.orderitem_set.all().filter(dish=dish).exists():
-        existing_object = order.orderitem_set.get(dish=dish)
-        # Get a list of extra_ids for this item 
-        list_of_extras = []
-        for extra in existing_object.orderitemextra_set.all():
-            list_of_extras.append(extra.extra.id)
-        # Compare with a list of extras for an item to be added
-        # if True, update quantity of existing_object by one, save
-        # else create new order item  
-        if sorted(list_of_extras) == sorted(extras):
-            existing_object.quantity += 1
-            existing_object.save()
-    else:  
-        order_item = OrderItem(order=order, dish=dish, price=dish.price, quantity=1)
-        order_item.save()
-        # Add extras to order item
-        if extras:
-            for extra_id in extras:
-                extra = ExtraType.objects.get(pk=int(extra_id)).extra_set.get(subtype=subtype_id)
-                order_extra = OrderItemExtra(order_item=order_item, extra=extra, price=extra.price)
-                order_extra.save()
+    extras = [x for x in extras if x != '0']
+
+    order.add_item_or_change_quantity(extras, dish, subtype_id)
             
     return redirect("last_added_item", order_id=order.id)
 
@@ -79,12 +56,9 @@ def last_added_item(request, order_id):
     return render(request, "orders/check.html", context)
 
 def shopping_cart(request):
-    order = Order.objects.get(session=request.session.session_key)
+    order = get_object_or_404(Order, session=request.session.session_key, status=1)
     # Calculating total for dishes
-    price = 0
-
-    for item in order.orderitem_set.all():
-        price += item.calculate_total_price()
+    price = order.total_for_order()
     
     context = {
     "order": order,
@@ -93,24 +67,28 @@ def shopping_cart(request):
     return render(request, "orders/shopping_cart.html", context)
 
 def delete_from_order(request, item_id):
-    order = get_object_or_404(Order, session=request.session.session_key)
-    item = order.orderitem_set.get(pk=item_id)
-    # Check if order has status 'in shopping cart'
-    if order.status.name == 'in shopping cart':
-        if item.quantity > 1:
-            item.quantity -= 1
-            item.save()
-        else:
-            item.delete()
+    item = get_object_or_404(Order, session=request.session.session_key,status=1).orderitem_set.get(pk=item_id)
+    item.delete()
 
     return redirect("shopping_cart")
 
 def change_quantity(request, item_id):
-    order = get_object_or_404(Order, session=request.session.session_key)
-    item = order.orderitem_set.get(pk=item_id)
+    item = get_object_or_404(Order, session=request.session.session_key,status=1).orderitem_set.get(pk=item_id)
     number = request.POST['quantity']
-    if order.status.name == 'in shopping cart':
-        item.quantity = int(number)
-        item.save()
+    item.quantity = int(number)
+    item.save()
     return redirect("shopping_cart")
+
+def confirm_order(request):
+    order = get_object_or_404(Order, session=request.session.session_key, status=1)
+    order.status=Status.objects.get(pk=2) # Status 'confirmed'
+    order.save()
+
+    return redirect("order_status")
+
+def order_status(request):
+    context = {
+    "orders": Order.objects.all().filter(session=request.session.session_key).exclude(status=1)
+    }
+    return render(request, "orders/order_status.html", context)
 

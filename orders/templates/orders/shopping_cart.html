@@ -27,6 +27,10 @@
 			{% endif %}
 		{% endfor %}
 		<h1>Total price: {{ total_price }}</h1>
+		<form action="{% url 'confirm_order' %}" method="post">
+				{% csrf_token %}
+  				<input type="submit" value="Confirm order">
+		</form>
 
 	</body>
 </html>

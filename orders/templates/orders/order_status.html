@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Shopping cart</title>
+	</head>
+	<body>
+		{% for order in orders %}
+			<p>Order No.{{ order.id }} is {{ order.status }}</p>
+		{% endfor %}
+
+	</body>
+</html>
