@@ -42,10 +42,10 @@ def add_to_order(request, subtype_id):
 
     order.add_item_or_change_quantity(extras, dish, subtype_id)
             
-    return redirect("last_added_item", order_id=order.id)
+    return redirect("last_added_item")
 
-def last_added_item(request, order_id):
-    last_item_in_order = Order.objects.get(pk=order_id).orderitem_set.all().last()
+def last_added_item(request):
+    last_item_in_order = get_object_or_404(Order, session=request.session.session_key, status=1).orderitem_set.all().last()
     price = last_item_in_order.calculate_total_price()
 
     context = {

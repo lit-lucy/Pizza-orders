@@ -10,7 +10,9 @@
     </head>
     <body>
         <h1>{{ subtype.name }}</h1>
-        <p>You can chose up to {{ subtype.number_of_extras }} toppings/extras </p>
+        {% if subtype.number_of_extras > 0 %}
+            <p>You can chose {{ subtype.number_of_extras }} topping(s)/extra(s) </p>
+        {% endif %}
         <br />
         <form action="{% url 'add_to_order' subtype.id %}" method="post">
             {% csrf_token %}
