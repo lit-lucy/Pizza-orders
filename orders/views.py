@@ -26,10 +26,10 @@ def add_to_order(request, subtype_id):
     dish = get_object_or_404(Subtype, pk=subtype_id).dish_set.get(size=request.POST['size'])
 
     order, created = Order.objects.get_or_create(session=request.session.session_key,
-        status=1,  # Status 'in shopping cart'
+        status=Order.IN_SHOPPING_CART,  # Status 'in shopping cart'
         defaults={
             'session': request.session.session_key,
-            'status': Status.objects.get(pk=1), # Status 'in shopping cart'
+            'status': Order.IN_SHOPPING_CART, # Status 'in shopping cart'
             'user': User.objects.get(pk=2), # Test user
             'time_created': timezone.now(),
             'delivery_type': DeliveryType.objects.get(pk=1), # Type 'pick up'
@@ -45,7 +45,7 @@ def add_to_order(request, subtype_id):
     return redirect("last_added_item")
 
 def last_added_item(request):
-    last_item_in_order = get_object_or_404(Order, session=request.session.session_key, status=1).orderitem_set.all().last()
+    last_item_in_order = get_object_or_404(Order, session=request.session.session_key, status=Order.IN_SHOPPING_CART).orderitem_set.all().last()
     price = last_item_in_order.calculate_total_price()
 
     context = {
@@ -56,7 +56,7 @@ def last_added_item(request):
     return render(request, "orders/check.html", context)
 
 def shopping_cart(request):
-    order = get_object_or_404(Order, session=request.session.session_key, status=1)
+    order = get_object_or_404(Order, session=request.session.session_key, status=Order.IN_SHOPPING_CART)
     # Calculating total for dishes
     price = order.total_for_order()
     
@@ -67,28 +67,28 @@ def shopping_cart(request):
     return render(request, "orders/shopping_cart.html", context)
 
 def delete_from_order(request, item_id):
-    item = get_object_or_404(Order, session=request.session.session_key,status=1).orderitem_set.get(pk=item_id)
+    item = get_object_or_404(Order, session=request.session.session_key,status=Order.IN_SHOPPING_CART).orderitem_set.get(pk=item_id)
     item.delete()
 
     return redirect("shopping_cart")
 
 def change_quantity(request, item_id):
-    item = get_object_or_404(Order, session=request.session.session_key,status=1).orderitem_set.get(pk=item_id)
+    item = get_object_or_404(Order, session=request.session.session_key,status=Order.IN_SHOPPING_CART).orderitem_set.get(pk=item_id)
     number = request.POST['quantity']
     item.quantity = int(number)
     item.save()
     return redirect("shopping_cart")
 
 def confirm_order(request):
-    order = get_object_or_404(Order, session=request.session.session_key, status=1)
-    order.status=Status.objects.get(pk=2) # Status 'confirmed'
+    order = get_object_or_404(Order, session=request.session.session_key, status=Order.IN_SHOPPING_CART)
+    order.status = order.CONFIRMED # Status 'confirmed'
     order.save()
 
     return redirect("order_status")
 
 def order_status(request):
     context = {
-    "orders": Order.objects.all().filter(session=request.session.session_key).exclude(status=1)
+    "orders": Order.objects.all().filter(session=request.session.session_key).exclude(status=Order.IN_SHOPPING_CART)
     }
     return render(request, "orders/order_status.html", context)
 

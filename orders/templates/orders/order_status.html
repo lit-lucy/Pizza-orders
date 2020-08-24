@@ -5,7 +5,7 @@
 	</head>
 	<body>
 		{% for order in orders %}
-			<p>Order No.{{ order.id }} is {{ order.status }}</p>
+			<p>Order No.{{ order.id }} is {{ order.status_str }}</p>
 		{% endfor %}
 
 	</body>
