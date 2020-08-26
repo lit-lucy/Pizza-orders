@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Shopping cart</title>
-	</head>
-	<body>
-		{% for order in orders %}
-			<p>Order No.{{ order.id }} is {{ order.status_str }}</p>
-		{% endfor %}
+{% extends "orders/layout.html" %}
 
-	</body>
-</html>
+{% block title %}
+    Shopping cart
+{% endblock %}
+
+{% block body %}
+		{% for order in orders %}
+			<p>Order No.{{ order.id }} is {{ order.status_str }}, delivery type: {{ order.delivery_type_str }}</p>
+		{% endfor %}
+{% endblock %}

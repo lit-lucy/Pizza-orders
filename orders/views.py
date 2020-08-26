@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from .models import *
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 
 def index(request):
     context = {
@@ -14,25 +15,28 @@ def index(request):
 
 def food_modifications(request, subtype_id):
     subtype = get_object_or_404(Subtype, pk=subtype_id)
-
     context = {
         "subtype": subtype,
         "range": range(subtype.number_of_extras),
     }
 
-    return render(request, "orders/food.html", context)
+    return render(request, "orders/dish_modification.html", context)
 
 def add_to_order(request, subtype_id):
     dish = get_object_or_404(Subtype, pk=subtype_id).dish_set.get(size=request.POST['size'])
-
+    if request.user.is_authenticated:
+        user = request.user
+    else:
+        user = None
+        request.session.save()
     order, created = Order.objects.get_or_create(session=request.session.session_key,
         status=Order.IN_SHOPPING_CART,  # Status 'in shopping cart'
         defaults={
             'session': request.session.session_key,
             'status': Order.IN_SHOPPING_CART, # Status 'in shopping cart'
-            'user': User.objects.get(pk=2), # Test user
+            'user': user, # Should be User object if looged in and None if Anonimus
             'time_created': timezone.now(),
-            'delivery_type': DeliveryType.objects.get(pk=1), # Type 'pick up'
+            'delivery_type': Order.PICK_UP, # Type 'pick up'
             'is_paid': False
             })
     
@@ -91,4 +95,3 @@ def order_status(request):
     "orders": Order.objects.all().filter(session=request.session.session_key).exclude(status=Order.IN_SHOPPING_CART)
     }
     return render(request, "orders/order_status.html", context)
-

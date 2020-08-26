@@ -64,6 +64,7 @@ class DeliveryType(models.Model):
         return f"{self.name}"
 
 class Order(models.Model):
+    # Statuses 
     IN_SHOPPING_CART = 1
     CONFIRMED = 2
     READY_TO_PICK_UP = 3
@@ -79,11 +80,18 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         default=IN_SHOPPING_CART, 
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT)
+    # Delivery types
+    PICK_UP = 1
+    DELIVERY_CHOICES = (
+        (PICK_UP, 'Pick up in a restaurant'),
+    )
+    delivery_type = models.IntegerField(
+        choices=DELIVERY_CHOICES,
+        default=PICK_UP, 
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
     time_created = models.DateTimeField()
-    delivery_type = models.ForeignKey(DeliveryType,
-        on_delete=models.PROTECT)
+
     is_paid = models.BooleanField()
     session = models.CharField(max_length=100)
 
@@ -91,7 +99,10 @@ class Order(models.Model):
         return f"{self.id} from {self.user}"
 
     def status_str(self):
-        return self.STATUS_CHOICES[self.status][1]
+        return self.STATUS_CHOICES[self.status-1][1]
+
+    def delivery_type_str(self):
+        return self.DELIVERY_CHOICES[self.delivery_type-1][1]
 
     def add_item_or_change_quantity(self, extras, dish, subtype_id):
         if self.orderitem_set.all().filter(dish=dish).exists():

@@ -1,19 +1,19 @@
+{% extends "orders/layout.html" %}
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Menu</title>
-    </head>
-    <body>
-        <h1>Menu</h1>
-        {% for food_type in food_types %}
-            <h1>{{ food_type }}</h1>
-            {% for subtype in food_type.subtype_set.all %}
-                <p><a href="{% url 'food_modifications' subtype.id %}">{{ subtype }}</a></p>
-                {% for price in subtype.dish_set.all %}
-                    <p>{{price.size}}, ${{ price.price }}</p>
-                {% endfor %}
+{% block title %}
+    Menu
+{% endblock %}
+
+{% block body %}
+    <h1>Menu</h1>
+    {% for food_type in food_types %}
+        <h1>{{ food_type }}</h1>
+        {% for subtype in food_type.subtype_set.all %}
+            <p><a href="{% url 'food_modifications' subtype.id %}">{{ subtype }}</a></p>
+            {% for price in subtype.dish_set.all %}
+                <p>{{price.size}}, ${{ price.price }}</p>
             {% endfor %}
-        {% endfor %}      
-    </body>
-</html>
+        {% endfor %}
+    {% endfor %}  
+{% endblock %}    
+

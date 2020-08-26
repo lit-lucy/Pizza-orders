@@ -1,9 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Check</title>
-</head>
-<body>
+{% extends "orders/layout.html" %}
+
+{% block title %}
+    Menu item summary
+{% endblock %}
+
+{% block body %}
 	<p>{{ order_item.dish }}</p>
 	{% if order_item.orderitemextra_set.all %}
 		<ul>
@@ -17,7 +18,4 @@
 	<a href="/">Back to menu</a>
 	<a href="{% url 'shopping_cart' %}">Proceed to shopping cart</a>
 	<p>choice of going back to menu or proceeding to shopping cart</p>
-
-
-</body>
-</html>
+{% endblock %}
