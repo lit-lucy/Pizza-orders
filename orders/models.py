@@ -51,18 +51,6 @@ class Extra(models.Model):
     def __str__(self):
         return f"{self.subtype} ({self.extra_type})"
 
-class Status(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.name}"
-
-class DeliveryType(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.name}"
-
 class Order(models.Model):
     # Statuses 
     IN_SHOPPING_CART = 1
@@ -143,7 +131,7 @@ class OrderItem(models.Model):
     quantity = models.IntegerField()
 
     def __str__(self):
-        return f"{self.dish}"
+        return f"{self.dish}, quantity: {self.quantity}"
 
     def calculate_total_price(self):
         price = self.price
