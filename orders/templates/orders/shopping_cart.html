@@ -6,28 +6,46 @@
 
 {% block body %}
 	<h1>Order No.{{ order.id }}</h1>
+	<div class="row justify-content-end">
+		<a class="btn btn-primary" href="/" role="button">Back to menu</a>
+	</div>
 	{% for item in order.orderitem_set.all %}
-		<form action="{% url 'delete_from_order' item.id %}" method="post">
-			{% csrf_token %}
-			<label>{{ item.dish }}</label>
-			<label>Quantity: {{ item.quantity }}</label>
-			<input type="submit" value="remove from the order">
-		</form>
-		<form action="{% url 'change_quantity' item.id %}" method="post">
-			{% csrf_token %}
-			<label>Quantity(from 1 to 5)</label>
-			<input type="number" id="quantity" name="quantity" min="1" max="5">
-				<input type="submit" value="change quantity">
-		</form>
-		{% if item.orderitemextra_set.all %}
-			<ul>
-				{% for extra in item.orderitemextra_set.all %}
-				<li>Topping: {{ extra.extra.extra_type }}, ${{ extra.price }}</li>
-				{% endfor %}
-			</ul>
-		{% endif %}
+		<div class="row">
+			<div class="col-sm">
+				<form action="{% url 'delete_from_order' item.id %}" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<label>{{ item.dish }} Quantity: {{ item.quantity }}</label>
+						<button type="submit" class="btn btn-danger btn-sm">Remove from the order</button>
+					</div>
+				</form>
+			</div>
+			<div class="col-sm">
+				<form action="{% url 'change_quantity' item.id %}" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<label>Quantity(from 1 to 5)</label>
+					</div>
+					<div class="form-group">
+						<input class="form-control form-control-sm" type="number" id="quantity" name="quantity" min="1" max="5">
+						<button type="submit" class="btn btn-secondary btn-sm">Change quantity</button>
+					</div>
+				</form>
+			</div>
+			<div class="col-sm">
+				{% if item.orderitemextra_set.all %}
+					<p>Toppings/extras</p>
+					<ul class="list-group list-group-flush">
+						{% for extra in item.orderitemextra_set.all %}
+						<li class="list-group-item">{{ extra.extra.extra_type }}, ${{ extra.price }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			</div>
+		</div>
+		<br>
 	{% endfor %}
-	<h1>Total price: {{ total_price }}</h1>
+	<h2>Total price: {{ total_price }}</h2>
 	<form action="{% url 'confirm_order' %}" method="post">
 		{% csrf_token %}
 		<input type="submit" value="Confirm order">

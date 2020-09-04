@@ -6,30 +6,33 @@
 
 {% block body %}
     <h1>{{ subtype.name }}</h1>
-    {% if subtype.number_of_extras > 0 %}
-        <p>You can chose {{ subtype.number_of_extras }} topping(s)/extra(s) </p>
-    {% endif %}
+    <a class="btn btn-primary" href="/" role="button">Back to menu</a>
+    
     <br />
     <form action="{% url 'add_to_order' subtype.id %}" method="post">
         {% csrf_token %}
-        <label for="size">Choose a size:</label>
-        <select id="size" name="size">
-        {% for sizes in subtype.dish_set.all %}
-            <option value="{{ sizes.size.id }}">{{ sizes.size.size }}</option>
-        {% endfor %}
-        </select>
-        <br />
-        {% for n in range %}
-            <label for="extras{{ forloop.counter }}">Choose a topping:</label>
-            <select id="extras{{ forloop.counter }}" name="extras">
-                <option value="{{ 0 }}">No toppings</option>
-                {% for extra in subtype.extra_set.all %}
-                    <option value="{{ extra.extra_type.id }}">{{ extra.extra_type }}, ${{ extra.price }}</option>
-                {% endfor %}
+        <div class="form-group">
+            <label for="size">Choose a size:</label>
+            <select class="form-control" id="size" name="size">
+            {% for sizes in subtype.dish_set.all %}
+                <option value="{{ sizes.size.id }}">{{ sizes.size.size }}</option>
+            {% endfor %}
             </select>
+            <br/>
+            {% if subtype.number_of_extras > 0 %}
+            <p>You can chose {{ subtype.number_of_extras }} topping(s)/extra(s) </p>
+            {% endif %}
+            {% for n in range %}
+                <label for="extras{{ forloop.counter }}">Choose a topping:</label>
+                <select id="extras{{ forloop.counter }}" class="form-control" name="extras">
+                    <option value="{{ 0 }}">No toppings</option>
+                    {% for extra in subtype.extra_set.all %}
+                        <option value="{{ extra.extra_type.id }}">{{ extra.extra_type }}, ${{ extra.price }}</option>
+                    {% endfor %}
+                </select>
+            {% endfor %}
             <br />
-        {% endfor %}
-        <br />
-        <input type="submit" value="Add to order"/>
+            <input type="submit" value="Add to order"/>
+        </div>
     </form>
 {% endblock %}

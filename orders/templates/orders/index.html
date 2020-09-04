@@ -6,13 +6,19 @@
 
 {% block body %}
     <h1>Menu</h1>
+    <div class="row justify-content-end">
+        <a class="btn btn-primary" href="{% url 'shopping_cart' %}" role="button">Go to shopping cart</a>
+    </div>
     {% for food_type in food_types %}
-        <h1>{{ food_type }}</h1>
+        <h2>{{ food_type }}</h2>
         {% for subtype in food_type.subtype_set.all %}
-            <p><a href="{% url 'food_modifications' subtype.id %}">{{ subtype }}</a></p>
-            {% for price in subtype.dish_set.all %}
-                <p>{{price.size}}, ${{ price.price }}</p>
-            {% endfor %}
+            <ul class="list-group">
+                <a href="{% url 'food_modifications' subtype.id %}" class="list-group-item list-group-item-action active">{{ subtype }}</a>
+                {% for price in subtype.dish_set.all %}
+                    <li class="list-group-item">{{price.size}}, ${{ price.price }}</li>
+                {% endfor %}
+            </ul>
+            </br>
         {% endfor %}
     {% endfor %}  
 {% endblock %}    

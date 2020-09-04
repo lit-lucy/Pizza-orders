@@ -5,7 +5,11 @@
 {% endblock %}
 
 {% block body %}
+	<h2>Your orders</h2>
 		{% for order in orders %}
-			<p>Order No.{{ order.id }} is {{ order.status_str }}, delivery type: {{ order.delivery_type_str }}</p>
+			<ul class="list-group list-group-horizontal">
+				<li class="list-group-item">Order No.{{ order.id }} is {{ order.status_str }}</li>
+				<li class="list-group-item">delivery type: {{ order.delivery_type_str }}</li>
+			</ul>
 		{% endfor %}
 {% endblock %}
