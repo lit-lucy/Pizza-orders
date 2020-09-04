@@ -1,3 +1,4 @@
 # Food ordering web application
 
-Django project
+Database structure:
+https://drawsql.app/none-66/diagrams/food-ordering-website/embed
